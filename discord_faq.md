@@ -100,6 +100,9 @@ _i,i_: "I have no point here, I just like saying:". Basically, "I care enough
 about this to say this, but not enough to argue further." Somewhat snarky, can
 usually be ignored. Used similarly (altho not identically) to scare quotes.
 
+_punt_, _tool_: MIT slang – to tool is to work on things you need to do
+(typically schoolwork); to punt is to put off doing those things.
+
 ## Why do some people show up as bots?
 They're probably posting on zephyr, and the Zygarde bot is mirroring their
 messages on discord.
