@@ -92,7 +92,9 @@ _eim_: "Elsewhere in meatspace". Comments on the physical world around me.
 _eiw_: "Elsewhere in webspace". Comments on things on the internet.
 
 _doxp_: "Do X predicate" (alternatively "Do X or punt"), originally from Lisp.
-A discussion on whether I should do X.
+A discussion on whether I should do X. "#t" and "#f" for "true" and "false" are
+commonly seen responses, also common are "x" and "p" for "do x" and "punt (i.e.
+don't do x), respectively.
 
 _doxory_, _doxyz_, etc.: "Do X or Y", "Do X or Y or Z", etc.
 
