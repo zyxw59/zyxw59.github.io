@@ -1,3 +1,5 @@
+# Discord FAQ
+
 ## What is this?
 This is my personal discord server, and a mirror of `-c emilycf` on zephyr. I'm
 using it as a general platform to talk about my life.
