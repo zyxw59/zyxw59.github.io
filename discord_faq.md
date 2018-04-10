@@ -39,10 +39,11 @@ A couple of MIT folks who had been pretty active zephyr users (@sadun and
 would be going away at some point. At first, I decided to stay on zephyr,
 because I liked the interface a lot better, and I didn't want to be a part of
 network effects encouraging more people to move away from zephyr. But then,
-@cesium made [Zygarde][0], which allowed bridging between Discord and zephyr.
-Now that I could continue using zephyr as my primary point of interaction, I
-decided to jump on the bandwagon, so that people would join my server now,
-while they were still in the "join ALL the servers" phase.
+@cesium made [Zygarde][0] (which @dannybd and others subsequently contributed
+to), which allowed bridging between Discord and zephyr.  Now that I could
+continue using zephyr as my primary point of interaction, I decided to jump on
+the bandwagon, so that people would join my server now, while they were still
+in the "join ALL the servers" phase.
 
 ## What are all these things in brackets (and abbreviations)?
 The brackets one might see at the beginning of a message are artifacts of the
@@ -103,4 +104,4 @@ usually be ignored. Used similarly (altho not identically) to scare quotes.
 They're probably posting on zephyr, and the Zygarde bot is mirroring their
 messages on discord.
 
-[0]: https://github.com/dannybd/zygarde/
+[0]: https://github.com/cesium12/zygarde/
