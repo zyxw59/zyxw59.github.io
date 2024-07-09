@@ -7,28 +7,6 @@ const tileTemplate = document.querySelector("#curve-tile-template");
 
 const SVG_SIZE = 200;
 const createArc = (name) => {
-  // const SVG_NS = "http://www.w3.org/2000/svg";
-  // const tile = document.createElement("div");
-  // tile.setAttribute("class", "tile");
-  // const svg = document.createElementNS(SVG_NS, "svg");
-  // svg.setAttribute("width", SVG_SIZE);
-  // svg.setAttribute("height", SVG_SIZE);
-  // const arc = document.createElementNS(SVG_NS, "path");
-  // arc.setAttribute("class", "arc");
-  // const guide = document.createElementNS(SVG_NS, "path");
-  // guide.setAttribute("class", "guide");
-  // const radii = document.createElementNS(SVG_NS, "path");
-  // radii.setAttribute("class", "radii");
-  // svg.appendChild(arc);
-  // svg.appendChild(guide);
-  // svg.appendChild(radii);
-
-  // const tileName = document.createElement("h2");
-  // tileName.appendChild(document.createTextNode(name));
-  // //const
-
-  // tile.appendChild(svg);
-  // arcDiv.appendChild(tile);
   const tile = tileTemplate.content.cloneNode(true);
   const header = tile.querySelector(".tile-name");
   header.appendChild(document.createTextNode(name));
