@@ -6,7 +6,7 @@
 input[type="range"] {
   width: 360px;
 }
-svg {
+.tile {
   float: left;
 }
 path {
@@ -42,6 +42,24 @@ path.radii {
     </datalist>
     <div id="arcs">
     </div>
+    <template id="curve-tile-template">
+      <div class="tile">
+        <h2 class="tile-name"></h2>
+        <svg>
+          <path class="arc" />
+          <path class="guide" />
+          <path class="radii" />
+        </svg>
+        <form>
+          <ul>
+            <li><label>Radius: <output name="radius" for="angle-slider"></output></label></li>
+            <li><label>Tangent length: <output name="tangent" for="angle-slider"></output></label></li>
+            <li><label>Kite area: <output name="kite" for="angle-slider"></output></label></li>
+            <li><label>Sector area: <output name="sector" for="angle-slider"></output></label></li>
+          </ul>
+        </form>
+      </div>
+    </template>
     <script src="curves.js"></script>
   </body>
 </html>

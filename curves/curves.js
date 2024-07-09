@@ -3,32 +3,52 @@
 const angleSlider = document.querySelector("#angle-slider");
 const angleText = document.querySelector("#angle-text");
 const arcDiv = document.querySelector("#arcs");
+const tileTemplate = document.querySelector("#curve-tile-template");
 
 const SVG_SIZE = 200;
-const createArc = () => {
-  const SVG_NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(SVG_NS, "svg");
+const createArc = (name) => {
+  // const SVG_NS = "http://www.w3.org/2000/svg";
+  // const tile = document.createElement("div");
+  // tile.setAttribute("class", "tile");
+  // const svg = document.createElementNS(SVG_NS, "svg");
+  // svg.setAttribute("width", SVG_SIZE);
+  // svg.setAttribute("height", SVG_SIZE);
+  // const arc = document.createElementNS(SVG_NS, "path");
+  // arc.setAttribute("class", "arc");
+  // const guide = document.createElementNS(SVG_NS, "path");
+  // guide.setAttribute("class", "guide");
+  // const radii = document.createElementNS(SVG_NS, "path");
+  // radii.setAttribute("class", "radii");
+  // svg.appendChild(arc);
+  // svg.appendChild(guide);
+  // svg.appendChild(radii);
+
+  // const tileName = document.createElement("h2");
+  // tileName.appendChild(document.createTextNode(name));
+  // //const
+
+  // tile.appendChild(svg);
+  // arcDiv.appendChild(tile);
+  const tile = tileTemplate.content.cloneNode(true);
+  const header = tile.querySelector(".tile-name");
+  header.appendChild(document.createTextNode(name));
+  const svg = tile.querySelector("svg");
   svg.setAttribute("width", SVG_SIZE);
   svg.setAttribute("height", SVG_SIZE);
-  const arc = document.createElementNS(SVG_NS, "path");
-  arc.setAttribute("class", "arc");
-  const guide = document.createElementNS(SVG_NS, "path");
-  guide.setAttribute("class", "guide");
-  const radii = document.createElementNS(SVG_NS, "path");
-  radii.setAttribute("class", "radii");
-  svg.appendChild(arc);
-  svg.appendChild(guide);
-  svg.appendChild(radii);
-  arcDiv.appendChild(svg);
-  return {arc, guide, radii};
+  const arc = tile.querySelector("path.arc");
+  const guide = tile.querySelector("path.guide");
+  const radii = tile.querySelector("path.radii");
+  const data = tile.querySelector("form");
+  arcDiv.appendChild(tile);
+  return {arc, guide, radii, data};
 };
 
 const arcs = {
-  standard: createArc(),
-  fixedR: createArc(),
-  fixedL: createArc(),
-  fixedRL: createArc(),
-  fixedRRTheta: createArc(),
+  standard: createArc("Control"),
+  fixedR: createArc("Fixed radius"),
+  fixedL: createArc("Fixed tangent"),
+  fixedRL: createArc("Fixed kite area"),
+  fixedRRTheta: createArc("Fixed sector area"),
 };
 
 const degToRad = (degrees) => degrees * Math.PI / 180;
@@ -74,12 +94,10 @@ const APPROACH = SVG_SIZE;
 const CX = SVG_SIZE / 2;
 const CY = SVG_SIZE / 2;
 
-const arcPath = ({r, theta}) => {
-  const {cos, sin, halfTan} = trig(theta);
-  if (theta == 180) {
+const arcPath = ({r, l, cos, sin}) => {
+  if (!Number.isFinite(l)) {
     return `M ${CX - APPROACH},${CY} h ${APPROACH * 2}`;
   }
-  const l = r / halfTan;
   const dx = l * (1 - cos);
   const dy = l * sin;
   const remainder = APPROACH - l;
@@ -90,17 +108,14 @@ a ${r},${r} 0 0 1 ${dx},${dy}
 l ${-remainder * cos},${remainder * sin}`;
 };
 
-const guidePath = (theta) => {
-  const {cos, sin} = trig(theta);
+const guidePath = ({cos, sin}) => {
   return `\
 M ${CX - APPROACH},${CY}
 h ${APPROACH}
 l ${-APPROACH * cos},${APPROACH * sin}`;
 }
 
-const radiiPath = ({r, theta}) => {
-  const {cos, sin, halfTan} = trig(theta);
-  const l = r / halfTan;
+const radiiPath = ({r, l, cos, sin}) => {
   return `\
 M ${CX - l},${CY}
 v ${r}
@@ -109,10 +124,18 @@ l ${r * sin},${r * cos}`;
 
 const BASE_R = APPROACH / 8;
 
-const updateArc = ({arc, guide, radii, r, theta}) => {
-  arc.setAttribute("d", arcPath({r, theta}));
-  guide.setAttribute("d", guidePath(theta));
-  radii.setAttribute("d", radiiPath({r, theta}));
+const roundN = (x, n=0) => Math.round(x * 10**n) / 10**n;
+
+const updateArc = ({arc, guide, radii, data, r, theta}) => {
+  const {cos, sin, halfTan} = trig(theta);
+  const l = r / halfTan;
+  arc.setAttribute("d", arcPath({r, l, cos, sin}));
+  guide.setAttribute("d", guidePath({cos, sin}));
+  radii.setAttribute("d", radiiPath({r, l, cos, sin}));
+  data.elements["radius"].value = roundN(r, 2);
+  data.elements["tangent"].value = roundN(l, 2);
+  data.elements["kite"].value = roundN(r * l, 2);
+  data.elements["sector"].value = roundN(r * r * degToRad(180 - theta) / 2, 2);
 };
 
 const updateArcs = (theta) => {
