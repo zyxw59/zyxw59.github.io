@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Curves</title>
+    <style>
+input[type="range"] {
+  width: 360px;
+}
+svg {
+  float: left;
+}
+path {
+  fill: none;
+}
+path.arc {
+  stroke: black;
+  stroke-width: 10px;
+}
+path.guide {
+  stroke: red;
+  stroke-width: 1px;
+}
+path.radii {
+  stroke: teal;
+  stroke-width: 1px;
+}
+    </style>
+  </head>
+  <body>
+    <input type="range" min="0" max="180" value="90" id="angle-slider" list="angle-markers" />
+    <input type="number" min="0" max="180" value="90" id="angle-text" list="angle-markers" />
+    <datalist id=angle-markers>
+      <option value="0"   label="0"></option>
+      <option value="30"  label="30"></option>
+      <option value="45"  label="45"></option>
+      <option value="60"  label="60"></option>
+      <option value="90"  label="90"></option>
+      <option value="120" label="120"></option>
+      <option value="135" label="135"></option>
+      <option value="150" label="150"></option>
+      <option value="180" label="180"></option>
+    </datalist>
+    <div id="arcs">
+    </div>
+    <script src="curves.js"></script>
+  </body>
+</html>
