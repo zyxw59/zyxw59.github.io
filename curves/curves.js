@@ -121,7 +121,7 @@ const updateArc = ({arc, guide, radii, data, r, theta}) => {
 createArc("Control", ({}) => 1)({theta: 90});
 const arcs = [
   createArc("Fixed radius",      ({})    => 1),
-  createArc("Fixed hypoteneuse", ({halfTan}) => 1 / Math.sqrt(1 + 1/(halfTan * halfTan))),
+  createArc("Fixed hypoteneuse", ({halfTan}) => Math.SQRT2 / Math.sqrt(1 + 1/(halfTan * halfTan))),
   createArc("Fixed tangent",     ({halfTan}) => halfTan),
   createArc("Fixed arc length",  ({theta})   => 90 / (180 - theta)),
   createArc("Fixed kite area",   ({halfTan}) => Math.sqrt(halfTan)),
