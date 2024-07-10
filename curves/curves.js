@@ -74,7 +74,7 @@ const CX = SVG_SIZE / 2;
 const CY = SVG_SIZE / 2;
 
 const arcPath = ({r, l, cos, sin}) => {
-  if (!Number.isFinite(l)) {
+  if (cos == -1) {
     return `M ${CX - APPROACH},${CY} h ${APPROACH * 2}`;
   }
   const dx = l * (1 - cos);
