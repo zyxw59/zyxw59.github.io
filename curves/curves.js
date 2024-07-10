@@ -25,6 +25,7 @@ const arcs = {
   standard: createArc("Control"),
   fixedR: createArc("Fixed radius"),
   fixedL: createArc("Fixed tangent"),
+  fixedRTheta: createArc("Fixed arc length"),
   fixedRL: createArc("Fixed kite area"),
   fixedRRTheta: createArc("Fixed sector area"),
 };
@@ -107,22 +108,25 @@ const roundN = (x, n=0) => Math.round(x * 10**n) / 10**n;
 const updateArc = ({arc, guide, radii, data, r, theta}) => {
   const {cos, sin, halfTan} = trig(theta);
   const l = r / halfTan;
+  const arcRad = degToRad(180 - theta);
   arc.setAttribute("d", arcPath({r, l, cos, sin}));
   guide.setAttribute("d", guidePath({cos, sin}));
   radii.setAttribute("d", radiiPath({r, l, cos, sin}));
   data.elements["radius"].value = roundN(r, 2);
   data.elements["tangent"].value = roundN(l, 2);
+  data.elements["arc"].value = roundN(r * arcRad, 2);
   data.elements["kite"].value = roundN(r * l, 2);
-  data.elements["sector"].value = roundN(r * r * degToRad(180 - theta) / 2, 2);
+  data.elements["sector"].value = roundN(r * r * arcRad / 2, 2);
 };
 
 const updateArcs = (theta) => {
   const {cos, sin, halfTan} = trig(theta);
-  const arcAreaFactor = Math.sqrt(90 / (180 - theta));
-  updateArc({...arcs.fixedR,       r: BASE_R,                      theta});
-  updateArc({...arcs.fixedL,       r: BASE_R * halfTan,            theta});
-  updateArc({...arcs.fixedRL,      r: BASE_R * Math.sqrt(halfTan), theta});
-  updateArc({...arcs.fixedRRTheta, r: BASE_R * arcAreaFactor,      theta});
+  const arcFactor = 90 / (180 - theta);
+  updateArc({...arcs.fixedR,       r: BASE_R,                        theta});
+  updateArc({...arcs.fixedL,       r: BASE_R * halfTan,              theta});
+  updateArc({...arcs.fixedRTheta,  r: BASE_R * arcFactor,            theta});
+  updateArc({...arcs.fixedRL,      r: BASE_R * Math.sqrt(halfTan),   theta});
+  updateArc({...arcs.fixedRRTheta, r: BASE_R * Math.sqrt(arcFactor), theta});
 };
 
 angleSlider.addEventListener("input", (event) => {
