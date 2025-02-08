@@ -3,6 +3,10 @@
   <head>
     <title>Curves</title>
     <style>
+* {
+  --arc-width: 10px;
+  --guide-width: 1.5px;
+}
 input[type="range"] {
   width: 360px;
 }
@@ -14,15 +18,15 @@ path {
 }
 path.arc {
   stroke: black;
-  stroke-width: 10px;
+  stroke-width: var(--arc-width);
 }
 *:has(input#show-guides:checked) ~ * path.guide {
   stroke: red;
-  stroke-width: 1px;
+  stroke-width: var(--guide-width);
 }
 *:has(input#show-radii:checked) ~ * path.radii {
-  stroke: teal;
-  stroke-width: 1px;
+  stroke: #00CC00;
+  stroke-width: var(--guide-width);
 }
 ul {
   list-style: none;

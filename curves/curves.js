@@ -6,13 +6,14 @@ const arcDiv = document.querySelector("#arcs");
 const tileTemplate = document.querySelector("#curve-tile-template");
 
 const SVG_SIZE = 200;
+const STROKE_WIDTH = 10;
 const createArc = (name, rFactor) => {
   const tile = tileTemplate.content.cloneNode(true);
   const header = tile.querySelector(".tile-name");
   header.appendChild(document.createTextNode(name));
   const svg = tile.querySelector("svg");
   svg.setAttribute("width", SVG_SIZE);
-  svg.setAttribute("height", SVG_SIZE);
+  svg.setAttribute("height", (SVG_SIZE + STROKE_WIDTH) / 2);
   const arc = tile.querySelector("path.arc");
   const guide = tile.querySelector("path.guide");
   const radii = tile.querySelector("path.radii");
@@ -80,7 +81,7 @@ const Trig = (theta) => {
 
 const APPROACH = SVG_SIZE;
 const CX = SVG_SIZE / 2;
-const CY = SVG_SIZE / 2;
+const CY = STROKE_WIDTH / 2;
 
 const arcPath = ({r, l, cos, sin}) => {
   if (cos == -1) {
