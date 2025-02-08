@@ -28,6 +28,10 @@ path.arc {
   stroke: #00CC00;
   stroke-width: var(--guide-width);
 }
+*:has(input#show-hypoteneuse:checked) ~ * path.hypoteneuse {
+  stroke: blue;
+  stroke-width: var(--guide-width);
+}
 ul {
   list-style: none;
   padding-left: 0;
@@ -50,6 +54,7 @@ ul {
     </datalist>
     <label>Show guides (red) <input type="checkbox" id="show-guides" checked /></label>
     <label>Show radii (green) <input type="checkbox" id="show-radii" checked /></label>
+    <label>Show hypoteneuse (blue) <input type="checkbox" id="show-hypoteneuse" checked /></label>
     <div id="arcs">
     </div>
     <template id="curve-tile-template">
@@ -59,6 +64,7 @@ ul {
           <path class="arc" />
           <path class="guide" />
           <path class="radii" />
+          <path class="hypoteneuse" />
         </svg>
         <form>
           <ul>

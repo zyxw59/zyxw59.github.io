@@ -17,6 +17,7 @@ const createArc = (name, rFactor) => {
   const arc = tile.querySelector("path.arc");
   const guide = tile.querySelector("path.guide");
   const radii = tile.querySelector("path.radii");
+  const hypoteneuse = tile.querySelector("path.hypoteneuse");
   const data = tile.querySelector("form");
   arcDiv.appendChild(tile);
   return ({trig, theta}) => {
@@ -31,6 +32,7 @@ const createArc = (name, rFactor) => {
     arc.setAttribute("d", arcPath({r, l, cos, sin}));
     guide.setAttribute("d", guidePath({cos, sin}));
     radii.setAttribute("d", radiiPath({r, l, cos, sin}));
+    hypoteneuse.setAttribute("d", hypoteneusePath({r, l}));
     data.elements["radius"].value = roundN(r, 2);
     data.elements["tangent"].value = roundN(l, 2);
     data.elements["hypoteneuse"].value = roundN(hypot, 2);
@@ -109,6 +111,12 @@ const radiiPath = ({r, l, cos, sin}) => {
 M ${CX - l},${CY}
 v ${r}
 l ${r * sin},${r * cos}`;
+}
+
+const hypoteneusePath = ({r, l}) => {
+  return `\
+M ${CX},${CY}
+l ${-l},${r}`;
 }
 
 const BASE_R = APPROACH / 8;
