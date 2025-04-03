@@ -2,6 +2,8 @@
 
 const angleSlider = document.querySelector("#angle-slider");
 const angleText = document.querySelector("#angle-text");
+const radiusSlider = document.querySelector("#radius-slider");
+const radiusText = document.querySelector("#radius-text");
 const arcDiv = document.querySelector("#arcs");
 const tileTemplate = document.querySelector("#curve-tile-template");
 
@@ -20,12 +22,12 @@ const createArc = (name, rFactor) => {
   const hypoteneuse = tile.querySelector("path.hypoteneuse");
   const data = tile.querySelector("form");
   arcDiv.appendChild(tile);
-  return ({trig, theta}) => {
+  return ({baseR, trig, theta}) => {
     if (typeof trig === "undefined") {
       trig = Trig(theta);
     }
     const {cos, sin, halfTan} = trig;
-    const r = BASE_R * rFactor({theta, ...trig});
+    const r = baseR * rFactor({theta, ...trig});
     const l = r / halfTan;
     const arcRad = degToRad(180 - theta);
     const hypot = r * Math.sqrt(1 + 1 / (halfTan * halfTan));
@@ -127,7 +129,7 @@ const updateArc = ({arc, guide, radii, data, r, theta}) => {
   const {cos, sin, halfTan} = Trig(theta);
 };
 
-createArc("Control", ({}) => 1)({theta: 90});
+const controlArc = createArc("Control", ({}) => 1);
 const arcs = [
   createArc("Fixed radius",      ({})    => 1),
   createArc("Fixed hypoteneuse", ({halfTan}) => Math.SQRT2 / Math.sqrt(1 + 1/(halfTan * halfTan))),
@@ -137,23 +139,41 @@ const arcs = [
   createArc("Fixed sector area", ({theta}) => Math.sqrt(90 / (180 - theta))),
 ];
 
-const updateArcs = (theta) => {
+const updateArcs = (baseR, theta) => {
   const trig = Trig(theta);
+  controlArc({baseR, theta: 90});
   for (const updateFunc of arcs) {
-    updateFunc({theta, trig});
+    updateFunc({baseR, theta, trig});
   }
 };
 
 angleSlider.addEventListener("input", (event) => {
   const theta = event.target.value;
+  const baseR = radiusSlider.value;
   angleText.value = theta;
-  updateArcs(theta);
+  updateArcs(baseR, theta);
 });
 
 angleText.addEventListener("change", (event) => {
   const theta = event.target.value;
+  const baseR = radiusSlider.value;
   angleSlider.value = theta;
-  updateArcs(theta);
+  updateArcs(baseR, theta);
 });
 
-updateArcs(angleSlider.value);
+radiusSlider.addEventListener("input", (event) => {
+  const baseR = event.target.value;
+  const theta = angleSlider.value;
+  radiusText.value = baseR;
+  updateArcs(baseR, theta);
+});
+
+radiusText.addEventListener("change", (event) => {
+  const baseR = event.target.value;
+  const theta = angleSlider.value;
+  radiusSlider.value = baseR;
+  updateArcs(baseR, theta);
+});
+
+
+updateArcs(radiusSlider.value, angleSlider.value);
