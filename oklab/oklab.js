@@ -4,6 +4,7 @@ const tileTemplate = document.querySelector("#tile-template");
 const tileContainer = document.querySelector("#tile-container");
 
 const initialLch = { l: 0.64, c: 0.12, h: 0 };
+const indicatorRadius = 15;
 
 const componentInRange = (c) => 0 <= c && c <= 1;
 const rgbInRange = ({ r, g, b }) => {
@@ -43,18 +44,26 @@ const LchChannel = {
       h: (Math.atan2(y, x) * 180) / Math.PI,
       mode: "oklch",
     }),
-    drawOthers: ({ ctx, width, height, c, h }) => {
-      const x = width / 2;
-      const y = height / 2;
+    drawOthers: ({ ctx, width, height, l, c, h }) => {
+      const midX = width / 2;
+      const midY = height / 2;
       const cMax = LchChannel.C.max;
       const cRel = c / cMax;
       const hRad = (h * Math.PI) / 180;
+      const x = midX * (1 + cRel * Math.cos(hRad));
+      const y = midY * (1 - cRel * Math.sin(hRad));
       ctx.beginPath();
-      ctx.ellipse(x, y, cRel * x, cRel * y, 0, 0, 2 * Math.PI);
+      ctx.ellipse(midX, midY, cRel * midX, cRel * midY, 0, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x * (1 + Math.cos(hRad)), y * (1 - Math.sin(hRad)));
+      ctx.moveTo(midX, midY);
+      ctx.lineTo(midX * (1 + Math.cos(hRad)), midY * (1 - Math.sin(hRad)));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = `oklch(${l} ${c} ${h})`;
+      console.log(ctx.fillStyle);
+      ctx.arc(x, y, indicatorRadius, 0, 2* Math.PI);
+      ctx.fill();
       ctx.stroke();
     },
     max: 1.0,
@@ -69,16 +78,24 @@ const LchChannel = {
       h: (Math.atan2(y, x) * 180) / Math.PI,
       mode: "oklch",
     }),
-    drawOthers: ({ ctx, width, height, l, h }) => {
-      const x = width / 2;
-      const y = height / 2;
+    drawOthers: ({ ctx, width, height, l, c, h }) => {
+      const midX = width / 2;
+      const midY = height / 2;
       const hRad = (h * Math.PI) / 180;
+      const x = midX * (1 + l * Math.cos(hRad));
+      const y = midY * (1 - l * Math.sin(hRad));
       ctx.beginPath();
-      ctx.ellipse(x, y, l * x, l * y, 0, 0, 2 * Math.PI);
+      ctx.ellipse(midX, midY, l * midX, l * midY, 0, 0, 2 * Math.PI);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x * (1 + Math.cos(hRad)), y * (1 - Math.sin(hRad)));
+      ctx.moveTo(midX, midY);
+      ctx.lineTo(midX * (1 + Math.cos(hRad)), midY * (1 - Math.sin(hRad)));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = `oklch(${l} ${c} ${h})`;
+      console.log(ctx.fillStyle);
+      ctx.arc(x, y, indicatorRadius, 0, 2* Math.PI);
+      ctx.fill();
       ctx.stroke();
     },
     max: 0.35,
@@ -93,7 +110,7 @@ const LchChannel = {
       h: z,
       mode: "oklch",
     }),
-    drawOthers: ({ ctx, width, height, l, c }) => {
+    drawOthers: ({ ctx, width, height, l, c, h }) => {
       const cRel = c / LchChannel.C.max;
       ctx.beginPath();
       ctx.moveTo(0, (1 - l) * height);
@@ -102,6 +119,12 @@ const LchChannel = {
       ctx.beginPath();
       ctx.moveTo(cRel * width, 0);
       ctx.lineTo(cRel * width, height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = `oklch(${l} ${c} ${h})`;
+      console.log(ctx.fillStyle);
+      ctx.arc(cRel * width, (1 - l) * height, indicatorRadius, 0, 2* Math.PI);
+      ctx.fill();
       ctx.stroke();
     },
     max: 360,
