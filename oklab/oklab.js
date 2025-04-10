@@ -36,12 +36,12 @@ const getImageData = ({ width, height }, channel, lch) => {
 const LchChannel = {
   L: {
     get: ({ l }) => l,
-    set: ({ l, c, h }, value) => ({ l: value, c, h }),
+    set: (l) => ({ l }),
     convert: ({ x, y, z }) => ({
       l: z,
-      a: LchChannel.C.max * x,
-      b: LchChannel.C.max * y,
-      mode: "oklab",
+      c: LchChannel.C.max * Math.hypot(x, y),
+      h: (Math.atan2(y, x) * 180) / Math.PI,
+      mode: "oklch",
     }),
     drawOthers: ({ ctx, width, height, c, h }) => {
       const x = width / 2;
@@ -62,7 +62,7 @@ const LchChannel = {
   },
   C: {
     get: ({ c }) => c,
-    set: ({ l, c, h }, value) => ({ l, c: value, h }),
+    set: (c) => ({ c }),
     convert: ({ x, y, z }) => ({
       l: Math.hypot(x, y),
       c: z,
@@ -86,7 +86,7 @@ const LchChannel = {
   },
   H: {
     get: ({ h }) => h,
-    set: ({ l, c, h }, value) => ({ l, c, h: value }),
+    set: (h) => ({ h }),
     convert: ({ x, y, z }) => ({
       l: (y + 1) / 2,
       c: (LchChannel.C.max * (x + 1)) / 2,
@@ -115,32 +115,10 @@ const createTile = ({ initialLch, channel }) => {
   const rangeInput = tile.querySelector(".range-input");
   const numberInput = tile.querySelector(".number-input");
 
-  initInputs({ rangeInput, numberInput, initialLch, channel });
-  tileContainer.appendChild(tile);
-
   const width = chart.width;
   const height = chart.width;
   const ctx = chart.getContext("2d");
 
-  let lch = initialLch;
-  let imageData = getImageData({ width, height }, channel, lch);
-  const tileData = {
-    redraw: (newLch) => {
-      ctx.clearRect(0, 0, width, height);
-      if (channel.get(newLch) != channel.get(lch)) {
-        imageData = getImageData({ width, height }, channel, newLch);
-      }
-      lch = newLch;
-      ctx.putImageData(imageData, 0, 0);
-      channel.drawOthers({ ctx, width, height, ...lch });
-    },
-  };
-  tileData.redraw(initialLch);
-
-  return tileData;
-};
-
-const initInputs = ({ rangeInput, numberInput, initialLch, channel }) => {
   rangeInput.step = channel.step;
   rangeInput.value = channel.get(initialLch);
   rangeInput.max = channel.max;
@@ -150,15 +128,54 @@ const initInputs = ({ rangeInput, numberInput, initialLch, channel }) => {
 
   rangeInput.addEventListener("input", (event) => {
     const value = Number(event.target.value);
-    numberInput.value = value;
-    updateCharts(channel, value);
+    updateCharts(channel.set(value));
   });
-  numberInput.addEventListener("input", (event) => {
+  numberInput.addEventListener("change", (event) => {
     const value = Number(event.target.value);
-    rangeInput.value = value;
-    updateCharts(channel, value);
+    updateCharts(channel.set(value));
   });
+
+  let lch = initialLch;
+  const mouseHandler = (event) => {
+    if (event.buttons & 1) {
+      const newLch = channel.convert({
+        x: (2 * event.offsetX) / width - 1,
+        y: 1 - (2 * event.offsetY) / height,
+        z: channel.get(lch),
+      });
+      updateCharts(newLch);
+    }
+  };
+  chart.addEventListener("mousemove", mouseHandler);
+  chart.addEventListener("mousedown", mouseHandler);
+
+  tileContainer.appendChild(tile);
+
+  let imageData = getImageData({ width, height }, channel, lch);
+  const tileData = {
+    redraw: (newLch) => {
+      rangeInput.value = channel.get(newLch);
+      numberInput.value = channel.get(newLch);
+      ctx.clearRect(0, 0, width, height);
+      if (channel.get(newLch) != channel.get(lch)) {
+        imageData = getImageData({ width, height }, channel, newLch);
+      }
+      lch = newLch;
+      ctx.putImageData(imageData, 0, 0);
+      channel.drawOthers({ ctx, width, height, ...lch });
+    },
+  };
+
+  return tileData;
 };
+
+const initInputs = ({
+  rangeInput,
+  numberInput,
+  chart,
+  initialLch,
+  channel,
+}) => {};
 
 const charts = [
   createTile({
@@ -176,9 +193,10 @@ const charts = [
 ];
 
 let lch = initialLch;
-const updateCharts = (channel, value) => {
-  lch = channel.set(lch, value);
+const updateCharts = (newLch) => {
+  lch = { ...lch, ...newLch };
   for (const chart of charts) {
     chart.redraw(lch);
   }
 };
+updateCharts(initialLch);
