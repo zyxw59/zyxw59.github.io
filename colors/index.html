@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>OkLAB</title>
     <style>
       .tile {
         float: left;
@@ -9,16 +8,20 @@
     </style>
   </head>
   <body>
+    <div>
+      <select id="space-selection"></select>
+    </div>
     <div id="tile-container"></div>
     <template id="tile-template">
       <div class="tile">
         <canvas width="600" height="600" class="chart"></canvas>
         <div>
-        <input type="range" min="0" class="range-input" />
-        <input type="number" min="0" class="number-input" />
+          <label class="label"></label>
+          <input type="range" class="range-input" />
+          <input type="number" class="number-input" />
         </div>
       </div>
     </template>
-    <script type="module" src="oklab.js"></script>
+    <script type="module" src="main.js"></script>
   </body>
 </html>
