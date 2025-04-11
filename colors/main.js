@@ -1,13 +1,23 @@
 import {
-  hwb,
+  cubehelix,
   hsi,
   hsl,
   hsv,
+  hwb,
+  itp,
+  lab,
+  lch,
+  lchuv,
+  lrgb,
+  luv,
   okhsl,
   okhsv,
   oklab,
   oklch,
   rgb,
+  xyb,
+  xyz50,
+  yiq,
 } from "https://cdn.skypack.dev/culori";
 
 const spaceSelection = document.querySelector("#space-selection");
@@ -58,7 +68,7 @@ const scaleRange = ({ from, to, value }) =>
 
 const makeRange = ({ min, max }) => ({ min, max });
 
-const makeChannelLinear = ({ mode, x, y, z }) => {
+const makeChannelLinear = ({ x, y, z }) => {
   const xRange = makeRange({ ...COLORS, ...x });
   const yRange = makeRange({ ...COLORS, ...y });
   const zRange = makeRange({ ...COLORS, ...z });
@@ -303,7 +313,6 @@ const createTile = ({ initialColor, channels, key }) => {
 
 const spaces = {
   oklch: {
-    mode: "oklch",
     convert: oklch,
     channels: makeChannelsCylindrical({
       r: { name: "chroma", key: "c", max: 0.35 },
@@ -312,7 +321,6 @@ const spaces = {
     }),
   },
   okhsl: {
-    mode: "okhsl",
     convert: okhsl,
     channels: makeChannelsCylindrical({
       r: { name: "saturation", key: "s" },
@@ -321,7 +329,6 @@ const spaces = {
     }),
   },
   okhsv: {
-    mode: "okhsv",
     convert: okhsv,
     channels: makeChannelsCylindrical({
       r: { name: "saturation", key: "s" },
@@ -330,7 +337,6 @@ const spaces = {
     }),
   },
   oklab: {
-    mode: "oklab",
     convert: oklab,
     channels: makeChannelsRectangular({
       x: { name: "green-red", key: "a", min: -0.4, max: 0.4 },
@@ -338,8 +344,39 @@ const spaces = {
       z: { name: "lightness", key: "l" },
     }),
   },
+  cielch: {
+    convert: lch,
+    channels: makeChannelsCylindrical({
+      r: { name: "chroma", key: "c", max: 150 },
+      z: { name: "lightness", key: "l", max: 100 },
+      theta: { name: "hue", key: "h" },
+    }),
+  },
+  cielab: {
+    convert: lab,
+    channels: makeChannelsRectangular({
+      x: { name: "green-red", key: "a", min: -100, max: 100 },
+      y: { name: "blue-yellow", key: "b", min: -100, max: 100 },
+      z: { name: "lightness", key: "l", max: 100 },
+    }),
+  },
+  cielchuv: {
+    convert: lchuv,
+    channels: makeChannelsCylindrical({
+      r: { name: "chroma", key: "c", max: 176.956 },
+      z: { name: "lightness", key: "l", max: 100 },
+      theta: { name: "hue", key: "h" },
+    }),
+  },
+  cieluv: {
+    convert: luv,
+    channels: makeChannelsRectangular({
+      x: { name: "green-red", key: "u", min: -84.936, max: 175.042 },
+      y: { name: "blue-yellow", key: "v", min: -125.882, max: 87.243 },
+      z: { name: "lightness", key: "l", max: 100 },
+    }),
+  },
   rgb: {
-    mode: "rgb",
     convert: rgb,
     channels: makeChannelsRectangular({
       x: { name: "red", key: "r" },
@@ -347,8 +384,15 @@ const spaces = {
       z: { name: "blue", key: "b" },
     }),
   },
+  lrgb: {
+    convert: lrgb,
+    channels: makeChannelsRectangular({
+      x: { name: "red", key: "r" },
+      y: { name: "green", key: "g" },
+      z: { name: "blue", key: "b" },
+    }),
+  },
   hsl: {
-    mode: "hsl",
     convert: hsl,
     channels: makeChannelsCylindrical({
       r: { name: "saturation", key: "s" },
@@ -357,7 +401,6 @@ const spaces = {
     }),
   },
   hsv: {
-    mode: "hsv",
     convert: hsv,
     channels: makeChannelsCylindrical({
       r: { name: "saturation", key: "s" },
@@ -366,7 +409,6 @@ const spaces = {
     }),
   },
   hsi: {
-    mode: "hsi",
     convert: hsi,
     channels: makeChannelsCylindrical({
       r: { name: "saturation", key: "s" },
@@ -375,11 +417,60 @@ const spaces = {
     }),
   },
   hwb: {
-    mode: "hwb",
     convert: hwb,
     channels: makeChannelsCylindrical({
       r: { name: "whiteness", key: "w" },
       z: { name: "blackness", key: "b" },
+      theta: { name: "hue", key: "h" },
+    }),
+  },
+  yiq: {
+    convert: yiq,
+    channels: makeChannelsRectangular({
+      x: { name: "in-phase (orange-blue)", key: "i", min: -0.595, max: 0.595 },
+      y: {
+        name: "quadrature (green-purple)",
+        key: "q",
+        min: -0.522,
+        max: 0.522,
+      },
+      z: { name: "luma", key: "y" },
+    }),
+  },
+  xyz: {
+    convert: xyz50,
+    channels: makeChannelsRectangular({
+      x: { name: "x", key: "x", max: 0.964 },
+      y: { name: "y", key: "y", max: 0.999 },
+      z: { name: "z", key: "z", max: 0.825 },
+    }),
+  },
+  xyb: {
+    convert: xyb,
+    channels: makeChannelsRectangular({
+      x: { name: "cyan-red", key: "x", min: -0.0154, max: 0.0281 },
+      y: { name: "blue-yellow", key: "b", min: -0.2778, max: 0.388 },
+      z: { name: "luma", key: "y", max: 0.8453 },
+    }),
+  },
+  ICtCp: {
+    convert: itp,
+    channels: makeChannelsRectangular({
+      x: {
+        name: "blue-yellow (tritanopia)",
+        key: "t",
+        min: -0.282,
+        max: 0.278,
+      },
+      y: { name: "green-red (protanopia)", key: "p", min: -0.162, max: 0.279 },
+      z: { name: "intensity", key: "i", max: 0.581 },
+    }),
+  },
+  cubehelix: {
+    convert: cubehelix,
+    channels: makeChannelsCylindrical({
+      r: { name: "saturation", key: "s", max: 4.614 },
+      z: { name: "lightness", key: "l" },
       theta: { name: "hue", key: "h" },
     }),
   },
@@ -388,7 +479,7 @@ const spaces = {
 for (const key in spaces) {
   const option = document.createElement("option");
   option.value = key;
-  option.text = spaces[key].mode;
+  option.text = key;
   spaceSelection.add(option);
 }
 
@@ -398,8 +489,8 @@ const spaceChange = (key) => {
   for (const { tile } of charts) {
     tileContainer.removeChild(tile);
   }
-  const { convert, channels, mode } = spaces[key];
-  document.title = mode;
+  const { convert, channels } = spaces[key];
+  document.title = key;
   const initialColor = convert(color);
   charts = Object.keys(channels).map((key) =>
     createTile({
