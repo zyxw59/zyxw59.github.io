@@ -34,8 +34,27 @@ const getImageData = ({ width, height }, channel, lch) => {
   return new ImageData(arr, width, height);
 };
 
+const drawLine = ({ ctx, width, height, center, edge }) => {
+  const midX = width / 2;
+  const midY = height / 2;
+  ctx.beginPath();
+  ctx.moveTo(midX * (1 + center.x), midY * (1 - center.y));
+  ctx.lineTo(midX * (1 + edge.x), midY * (1 - edge.y));
+  ctx.stroke();
+};
+
+const drawCircle = ({ ctx, width, height, center, edge }) => {
+  const midX = width / 2;
+  const midY = height / 2;
+  const r = Math.hypot(edge.x, edge.y);
+  ctx.beginPath();
+  ctx.ellipse(midX, midY, r * midX, r * midY, 0, 0, 2 * Math.PI);
+  ctx.stroke();
+};
+
 const LchChannel = {
   L: {
+    name: "L",
     get: ({ l }) => l,
     set: (l) => ({ l }),
     convert: ({ x, y, z }) => ({
@@ -44,32 +63,25 @@ const LchChannel = {
       h: (Math.atan2(y, x) * 180) / Math.PI,
       mode: "oklch",
     }),
-    drawOthers: ({ ctx, width, height, l, c, h }) => {
-      const midX = width / 2;
-      const midY = height / 2;
-      const cMax = LchChannel.C.max;
-      const cRel = c / cMax;
+    unconvert: ({ l, c, h }) => {
+      const cRel = c / LchChannel.C.max;
       const hRad = (h * Math.PI) / 180;
-      const x = midX * (1 + cRel * Math.cos(hRad));
-      const y = midY * (1 - cRel * Math.sin(hRad));
-      ctx.beginPath();
-      ctx.ellipse(midX, midY, cRel * midX, cRel * midY, 0, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(midX, midY);
-      ctx.lineTo(midX * (1 + Math.cos(hRad)), midY * (1 - Math.sin(hRad)));
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.fillStyle = `oklch(${l} ${c} ${h})`;
-      console.log(ctx.fillStyle);
-      ctx.arc(x, y, indicatorRadius, 0, 2* Math.PI);
-      ctx.fill();
-      ctx.stroke();
+      return {
+        x: cRel * Math.cos(hRad),
+        y: cRel * Math.sin(hRad),
+        z: l,
+      };
+    },
+    drawCrosshairs: {
+      l: ({}) => {},
+      c: drawLine,
+      h: drawCircle,
     },
     max: 1.0,
     step: 0.01,
   },
   C: {
+    name: "c",
     get: ({ c }) => c,
     set: (c) => ({ c }),
     convert: ({ x, y, z }) => ({
@@ -78,30 +90,24 @@ const LchChannel = {
       h: (Math.atan2(y, x) * 180) / Math.PI,
       mode: "oklch",
     }),
-    drawOthers: ({ ctx, width, height, l, c, h }) => {
-      const midX = width / 2;
-      const midY = height / 2;
+    unconvert: ({ l, c, h }) => {
       const hRad = (h * Math.PI) / 180;
-      const x = midX * (1 + l * Math.cos(hRad));
-      const y = midY * (1 - l * Math.sin(hRad));
-      ctx.beginPath();
-      ctx.ellipse(midX, midY, l * midX, l * midY, 0, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(midX, midY);
-      ctx.lineTo(midX * (1 + Math.cos(hRad)), midY * (1 - Math.sin(hRad)));
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.fillStyle = `oklch(${l} ${c} ${h})`;
-      console.log(ctx.fillStyle);
-      ctx.arc(x, y, indicatorRadius, 0, 2* Math.PI);
-      ctx.fill();
-      ctx.stroke();
+      return {
+        x: l * Math.cos(hRad),
+        y: l * Math.sin(hRad),
+        z: c,
+      };
+    },
+    drawCrosshairs: {
+      l: drawLine,
+      c: ({}) => {},
+      h: drawCircle,
     },
     max: 0.35,
     step: 0.01,
   },
   H: {
+    name: "h",
     get: ({ h }) => h,
     set: (h) => ({ h }),
     convert: ({ x, y, z }) => ({
@@ -110,22 +116,15 @@ const LchChannel = {
       h: z,
       mode: "oklch",
     }),
-    drawOthers: ({ ctx, width, height, l, c, h }) => {
-      const cRel = c / LchChannel.C.max;
-      ctx.beginPath();
-      ctx.moveTo(0, (1 - l) * height);
-      ctx.lineTo(width, (1 - l) * height);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(cRel * width, 0);
-      ctx.lineTo(cRel * width, height);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.fillStyle = `oklch(${l} ${c} ${h})`;
-      console.log(ctx.fillStyle);
-      ctx.arc(cRel * width, (1 - l) * height, indicatorRadius, 0, 2* Math.PI);
-      ctx.fill();
-      ctx.stroke();
+    unconvert: ({ l, c, h }) => ({
+      x: (2 * c) / LchChannel.C.max - 1,
+      y: 2 * l - 1,
+      z: h,
+    }),
+    drawCrosshairs: {
+      l: drawLine,
+      c: drawLine,
+      h: ({}) => {},
     },
     max: 360,
     step: 1,
@@ -185,7 +184,40 @@ const createTile = ({ initialLch, channel }) => {
       }
       lch = newLch;
       ctx.putImageData(imageData, 0, 0);
-      channel.drawOthers({ ctx, width, height, ...lch });
+      channel.drawCrosshairs.l({
+        ctx,
+        width,
+        height,
+        center: channel.unconvert({ ...lch, l: 0 }),
+        edge: channel.unconvert({ ...lch, l: LchChannel.L.max }),
+      });
+      channel.drawCrosshairs.c({
+        ctx,
+        width,
+        height,
+        center: channel.unconvert({ ...lch, c: 0 }),
+        edge: channel.unconvert({ ...lch, c: LchChannel.C.max }),
+      });
+      channel.drawCrosshairs.h({
+        ctx,
+        width,
+        height,
+        center: channel.unconvert({ ...lch, h: 0 }),
+        edge: channel.unconvert({ ...lch, h: LchChannel.H.max }),
+      });
+      let { x, y } = channel.unconvert(lch);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = `oklch(${lch.l} ${lch.c} ${lch.h})`;
+      ctx.arc(
+        ((x + 1) * width) / 2,
+        ((1 - y) * height) / 2,
+        indicatorRadius,
+        0,
+        2 * Math.PI
+      );
+      ctx.fill();
+      ctx.stroke();
     },
   };
 
